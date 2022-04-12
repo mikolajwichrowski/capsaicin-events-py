@@ -12,4 +12,12 @@
 8. create super user so that i can log in to the django backend. https://docs.djangoproject.com/en/4.0/ref/django-admin/#django-admin-createsuperuser
 9. start the server to tests if the admin login works `./manage.py runserver` 
 10. go to localhost:8000/admin/ and log in.
+11. Add django rest framework with the user model, view and serialzer.
+12. Add authentication and registration view to make sure only authenticated users can get data.
 ---
+
+## 1. Event creation
+1. Create event model like created in the ERD 
+2. Create serializer according to the drf docs https://www.django-rest-framework.org/tutorial/quickstart/ 
+3. Create view according to the drf docs https://www.django-rest-framework.org/tutorial/quickstart/ 
+
