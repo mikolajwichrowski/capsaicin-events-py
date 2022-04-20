@@ -8,6 +8,7 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'events', EventViewSet)
 
+
 urlpatterns = [
     path('admin/', include('rest_framework.urls')),
     path('api/', include(router.urls)),

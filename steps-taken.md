@@ -20,4 +20,21 @@
 1. Create event model like created in the ERD 
 2. Create serializer according to the drf docs https://www.django-rest-framework.org/tutorial/quickstart/ 
 3. Create view according to the drf docs https://www.django-rest-framework.org/tutorial/quickstart/ 
+---
 
+## 2. Adding attendees
+1. Create attendee model.
+2. Create attendee serializer.
+3. Create attendee view.
+---
+
+## 3. File upload
+1. Create a file model.
+2. Create a file serializer.
+3. Refactor Attendee and file to be a detail view under Event.
+---
+
+## 4. Attending event / 5. Communication
+1. Create a reaction model.
+2. Declare the reaction enum.
+3. Add post and get reaction on the Event model
