@@ -80,7 +80,7 @@ class EventViewSet(viewsets.ViewSet):
             event: int('pk'),
             file_location: f"/{file_location}"
         }
-        serializer = AttendeeCreateSerializer(data=data)
+        serializer = FileSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
