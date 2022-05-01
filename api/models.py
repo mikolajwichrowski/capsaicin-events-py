@@ -9,7 +9,7 @@ class User(models.Model):
 class Event(models.Model):
     creator = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.CharField(max_length=255)
-    picture = models.CharField(max_length=40000)
+    picture = models.CharField(max_length=4000000)
     location = models.CharField(max_length=255)
 
 class Attendee(models.Model):
