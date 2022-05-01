@@ -27,7 +27,7 @@ class AttendeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Attendee
-        fields = ['id', 'user']
+        fields = ['id', 'user', 'event']
 
 
 class AttendeeCreateSerializer(AttendeeSerializer):
@@ -49,7 +49,6 @@ class FileSerializer(serializers.ModelSerializer):
 
 class ReactionSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-    event = EventSerializer()
 
     class Meta:
         model = Reaction

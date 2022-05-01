@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.response import Response
 from api.auth import Protected
 from rest_framework.decorators import action
-
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 
 class UserViewSet(viewsets.ViewSet):
     """
@@ -16,6 +16,7 @@ class UserViewSet(viewsets.ViewSet):
     """
     queryset = User.objects.all()
     permission_classes = [Protected]
+    renderer_classes = [CamelCaseJSONRenderer]
 
     def list(self, request):
         serializer = UserSerializer(self.queryset, many=True)
@@ -33,6 +34,7 @@ class EventViewSet(viewsets.ViewSet):
     """
     queryset = Event.objects.all()
     permission_classes = [Protected]
+    renderer_classes = [CamelCaseJSONRenderer]
 
     def list(self, request):
         serializer = EventSerializer(self.queryset, many=True)
@@ -44,10 +46,17 @@ class EventViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = EventCreateSerializer(data=request.data)
+        data = {
+            **request.data,
+            "creator": request.COOKIES["user_id"]
+        }
+        serializer = EventCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=201)
+        data = serializer.data
+        event = get_object_or_404(self.queryset, pk=data.get("id"))
+        response_serializer = EventSerializer(event)
+        return Response(response_serializer.data, status=201)
     
     @action(methods=['GET'], detail=True, url_path='attendees')
     def list_attendees(self, request, pk):
@@ -61,7 +70,10 @@ class EventViewSet(viewsets.ViewSet):
         serializer = AttendeeCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=201)
+        data = serializer.data
+        data = Attendee.objects.get(pk=data.get("id"))
+        attendee_serializer = AttendeeSerializer(data)
+        return Response(attendee_serializer.data, status=201)
 
     @action(methods=['GET'], detail=True, url_path='files')
     def list_event_files(self, request, pk):
@@ -69,16 +81,16 @@ class EventViewSet(viewsets.ViewSet):
         return Response(serializer.data)
     
     @action(methods=['POST'], detail=True, url_path='upload')
-    def upload_event_file(request, pk):
-        file_uploaded = request.FILES.get('file_uploaded')
+    def upload_event_file(self, request, pk):
+        file_uploaded = request.FILES.get('file')
         content_type = file_uploaded.content_type
-        file_location = f"media/{file_uploaded.name}"
+        file_location = f"uploads/{file_uploaded.name}"
         with open(file_location, 'wb+') as destination:
-            for chunk in f.chunks():
+            for chunk in file_uploaded.chunks():
                 destination.write(chunk)
         data = {
-            event: int('pk'),
-            file_location: f"/{file_location}"
+            "event": int(pk),
+            "file_location": f"/{file_location}"
         }
         serializer = FileSerializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -92,16 +104,20 @@ class EventViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     @action(methods=['POST'], detail=True, url_path='react')
-    def upload_event_file(request, pk):
+    def react_on_event(self, request, pk):
         data = {
             **request.data,
-            event: int('pk'),
-            user: request.COOKIES["user_id"]
+            "availibility_date": request.data.get("availibilityDate", None),
+            "event": int(pk),
+            "user": request.COOKIES["user_id"]
         }
         serializer = ReactionCreateSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=201)
+        data = serializer.data
+        data = Reaction.objects.get(pk=data.get("id"))
+        reaction_serializer = ReactionSerializer(data)
+        return Response(reaction_serializer.data, status=201)
     
 
 

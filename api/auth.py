@@ -40,7 +40,10 @@ def authenticate(request):
     try:
         user_logging_in = User.objects.get(
             username=payload.get("username"), password=payload.get("password"))
-        cookie_response = Response("")
+        cookie_response = Response({
+            "id": user_logging_in.id,
+            "username": user_logging_in.username
+        })
         cookie_response.set_cookie(CookieKeys.logged_in.value, 'yes')
         cookie_response.set_cookie(
             CookieKeys.user_id.value, user_logging_in.id)
