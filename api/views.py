@@ -10,6 +10,7 @@ from api.auth import Protected
 from rest_framework.decorators import action
 from djangorestframework_camel_case.render import CamelCaseJSONRenderer
 
+
 class UserViewSet(viewsets.ViewSet):
     """
     A simple ViewSet for listing or retrieving users.
@@ -18,12 +19,16 @@ class UserViewSet(viewsets.ViewSet):
     permission_classes = [Protected]
     renderer_classes = [CamelCaseJSONRenderer]
 
+    def get_queryset(self):
+        queryset = User.objects.all()
+        return queryset
+
     def list(self, request):
-        serializer = UserSerializer(self.queryset, many=True)
+        serializer = UserSerializer(self.queryset.all(), many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        user = get_object_or_404(self.queryset, pk=pk)
+        user = get_object_or_404(self.queryset.all(), pk=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
@@ -36,12 +41,17 @@ class EventViewSet(viewsets.ViewSet):
     permission_classes = [Protected]
     renderer_classes = [CamelCaseJSONRenderer]
 
+    def destroy(self, request, pk=None):
+        event = get_object_or_404(self.queryset.all(), pk=pk)
+        event.delete()
+        return Response(status=204)
+
     def list(self, request):
-        serializer = EventSerializer(self.queryset, many=True)
+        serializer = EventSerializer(self.queryset.all(), many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        event = get_object_or_404(self.queryset, pk=pk)
+        event = get_object_or_404(self.queryset.all(), pk=pk)
         serializer = EventSerializer(event)
         return Response(serializer.data)
 
@@ -54,16 +64,16 @@ class EventViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = serializer.data
-        event = get_object_or_404(self.queryset, pk=data.get("id"))
+        event = get_object_or_404(self.queryset.all(), pk=data.get("id"))
         response_serializer = EventSerializer(event)
         return Response(response_serializer.data, status=201)
-    
+
     @action(methods=['GET'], detail=True, url_path='attendees')
     def list_attendees(self, request, pk):
         attendees = Attendee.objects.filter(event_id=pk)
         serializer = AttendeeSerializer(attendees, many=True)
         return Response(serializer.data)
-    
+
     @action(methods=['POST'], detail=True, url_path='register')
     def register_attendee(self, request, pk):
         request.data["event"] = pk
@@ -77,9 +87,10 @@ class EventViewSet(viewsets.ViewSet):
 
     @action(methods=['GET'], detail=True, url_path='files')
     def list_event_files(self, request, pk):
-        serializer = FileSerializer(File.objects.filter(event_id=pk), many=True)
+        serializer = FileSerializer(
+            File.objects.filter(event_id=pk), many=True)
         return Response(serializer.data)
-    
+
     @action(methods=['POST'], detail=True, url_path='upload')
     def upload_event_file(self, request, pk):
         file_uploaded = request.FILES.get('file')
@@ -96,7 +107,7 @@ class EventViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
-    
+
     @action(methods=['GET'], detail=True, url_path='reactions')
     def list_reactions(self, request, pk):
         reactions = Reaction.objects.filter(event_id=pk)
@@ -118,11 +129,3 @@ class EventViewSet(viewsets.ViewSet):
         data = Reaction.objects.get(pk=data.get("id"))
         reaction_serializer = ReactionSerializer(data)
         return Response(reaction_serializer.data, status=201)
-    
-
-
-
-
-
-
-
