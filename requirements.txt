@@ -2,3 +2,4 @@ django
 djangorestframework
 Pillow
 djangorestframework-camel-case
+drf-yasg

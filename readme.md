@@ -1,7 +1,7 @@
-# Capsacin events sharp
+# Capsacin events py
 
-This project is a proof of concept for the effectiveness of C# in a given use case. 
-The application is made with the .Net framework, uses EF and sqlite.
+This project is a proof of concept for the effectiveness of Python in a given use case. 
+The application is made with the Django, DRF and sqlite.
 Authentication is simple and not safe for production, but serves it's purpose for this given usecase.
 
 ## Use case
