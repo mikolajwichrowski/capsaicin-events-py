@@ -18,7 +18,6 @@ class CookieKeys(Enum):
 
 class Protected(BasePermission):
     def has_permission(self, request, _):
-        print(request.COOKIES)
         is_logged_in = request.COOKIES.get(CookieKeys.logged_in.value)
 
         if is_logged_in != "yes":
@@ -29,7 +28,6 @@ class Protected(BasePermission):
             if user_object:
                 return True
         except Exception as e:
-            print(f"{e.args[0]}")
             pass
         return False
 
@@ -37,6 +35,7 @@ class Protected(BasePermission):
 @api_view(['POST'])
 def authenticate(request):
     payload = request.data
+    message = ""
     try:
         user_logging_in = User.objects.get(
             username=payload.get("username"), password=payload.get("password"))
@@ -49,7 +48,7 @@ def authenticate(request):
             CookieKeys.user_id.value, user_logging_in.id)
         return cookie_response
     except:
-        return Response(status=403)
+        return Response({ "message": "User does not exist" }, status=401)
 
 
 @api_view(['POST'])
